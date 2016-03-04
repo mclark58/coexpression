@@ -715,9 +715,9 @@ class CoExpression:
               else:
                   pass
         elif oexpr['data']['type'] == 'ratio':
-            fc_cf = df2.apply(np.log2)
+            fc_df = df2.apply(np.log2)
         elif oexpr['data']['type'] == 'log-ratio':
-            fc_cf = df2
+            fc_df = df2
             if oexpr['data']['scale'] == "log10":
                 fc_df = fc_df/np.log10(2)
             elif oexpr['data']['scale'] == "ln":
