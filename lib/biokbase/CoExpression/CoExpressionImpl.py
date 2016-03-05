@@ -694,6 +694,14 @@ class CoExpression:
         # type - ? level, ratio, log-ratio  <---> "untransformed"
         # scale - ? probably: raw, ln, log2, log10
         self.logger.info("Expression matrix type: {0}, scale: {1}".format(oexpr['data']['type'],oexpr['data']['scale'] ))
+        # do default behavior
+        factor = 0.125
+        fc_df = df2 + df2[df2 !=0].abs().min().min() * factor
+        if param['control_condition']  in fc_df.columns:
+            fc_df = (fc_df.div(fc_df.loc[:,fc_df.columns[param['control_condition']]], axis=0)).apply(np.log2)
+        else:
+            fc_df = (fc_df.div(fc_df.loc[:,fc_df.columns[0]], axis=0)).apply(np.log2)
+        # now fc_df will be reset
         if oexpr['data']['type'] == 'level' or oexpr['data']['type'] == 'untransformed': # need to compute fold changes
             if 'scale' not in oexpr['data'] or oexpr['data']['scale'] == 'raw' or oexpr['data']['scale'] == "1.0":
               factor = 0.125
