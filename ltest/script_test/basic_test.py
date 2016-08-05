@@ -26,20 +26,20 @@ class TestCoExpressionMethodsSetup(unittest.TestCase):
 # Define all our other test cases here
 class TestCoExpressionMethods(TestCoExpressionMethodsSetup): 
 
-# def test_diff_p_distribution(self):
-#        print("\n\n----------- test diff_p_distribution  ----------")
-#
-#        out =call(["run_CoExpression.sh",
-#        "ltest/script_test/test_diff_p_distribution_input.json",
-#        "ltest/script_test/test_diff_p_distribution_output.json",
-#        "ltest/script_test/token.txt"])
-#
-#        # print error code of Implementation
-#        print(out);
-#
-#        with open('ltest/script_test/test_diff_p_distribution_output.json') as o:
-#                output =json.load(o)
-#        pprint(output)
+ def test_diff_p_distribution(self):
+        print("\n\n----------- test diff_p_distribution  ----------")
+
+        out =call(["run_CoExpression.sh",
+        "ltest/script_test/test_diff_p_distribution_input.json",
+        "ltest/script_test/test_diff_p_distribution_output.json",
+        "ltest/script_test/token.txt"])
+
+        # print error code of Implementation
+        print(out);
+
+        with open('ltest/script_test/test_diff_p_distribution_output.json') as o:
+                output =json.load(o)
+        pprint(output)
 
  def test_view_heatmap(self):
         print("\n\n----------- test view_heatmap  ----------")
@@ -56,35 +56,35 @@ class TestCoExpressionMethods(TestCoExpressionMethodsSetup):
                 output =json.load(o)
         pprint(output)
 
-# def test_filter_genes(self):
-#        print("\n\n----------- test filter genes ----------")
-#
-#        out =call(["run_CoExpression.sh",
-#        "ltest/script_test/test_filter_genes_input.json",
-#        "ltest/script_test/test_filter_genes_output.json",
-#        "ltest/script_test/token.txt"])
-#
-#        # print error code of Implementation
-#        print(out);
-#
-#        with open('ltest/script_test/test_filter_genes_output.json') as o:
-#                output =json.load(o)
-#        pprint(output)
-#
-# def test_coex_cluster(self):
-#        print("\n\n----------- test constcoex_net_clust ----------")
-#
-#        out =call(["run_CoExpression.sh",
-#        "ltest/script_test/test_coex_clust_input.json",
-#        "ltest/script_test/test_coex_clust_output.json",
-#        "ltest/script_test/token.txt"])
-#
-#        # print error code of Implementation
-#        print(out);
-#
-#        with open('ltest/script_test/test_coex_clust_output.json') as o:
-#                output =json.load(o)
-#        pprint(output)
+ def test_filter_genes(self):
+        print("\n\n----------- test filter genes ----------")
+
+        out =call(["run_CoExpression.sh",
+        "ltest/script_test/test_filter_genes_input.json",
+        "ltest/script_test/test_filter_genes_output.json",
+        "ltest/script_test/token.txt"])
+
+        # print error code of Implementation
+        print(out);
+
+        with open('ltest/script_test/test_filter_genes_output.json') as o:
+                output =json.load(o)
+        pprint(output)
+
+ def test_coex_cluster(self):
+        print("\n\n----------- test constcoex_net_clust ----------")
+
+        out =call(["run_CoExpression.sh",
+        "ltest/script_test/test_coex_clust_input.json",
+        "ltest/script_test/test_coex_clust_output.json",
+        "ltest/script_test/token.txt"])
+
+        # print error code of Implementation
+        print(out);
+
+        with open('ltest/script_test/test_coex_clust_output.json') as o:
+                output =json.load(o)
+        pprint(output)
 
 
 #start the tests if run as a script

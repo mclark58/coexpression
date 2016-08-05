@@ -13,6 +13,7 @@ from os import environ
 from ConfigParser import ConfigParser
 import re
 from collections import OrderedDict
+import uuid
 
 # 3rd party imports
 import requests
@@ -23,41 +24,33 @@ import numpy as np
 import biokbase.workspace.client 
 import biokbase.Transform.script_utils as script_utils 
 
-def empty_results(err_msg, expr, workspace_service_url, param, logger, ws):
-    if 'description' not in expr: 
-        expr['description'] = "Filtered Expression Matrix"
-    expr['description'] += " : Empty Expression Matrix by '{0}' method; {1}".format(param['method'], err_msg)
+def error_report(err_msg, expr, workspace_service_url, param, provenance, ws):
 
-    expr['feature_mapping'] = {}
-    expr['data'] = {'row_ids' : [], 'col_ids' : [], 'values' : []}
+    ## Create report object:
+    report = "Failed : {0}".format(err_msg)
+    reportObj = {
+                    'objects_created':[],
+                    'text_message':report
+                }
 
-    ws.save_objects({'workspace' : param['workspace_name'], 'objects' : [{'type' : 'KBaseFeatureValues.ExpressionMatrix',
-                                                                          'data' : expr,
-                                                                          'name' : (param['out_expr_object_name'])}]})
+    # generate a unique name for the Method report
+    reportName = 'ErrorReport_'+str(hex(uuid.getnode()))
+    report_info = ws.save_objects({
+                                    'workspace':param['workspace_name'],
+                                    'objects':[
+                                    {
+                                    'type':'KBaseReport.Report',
+                                    'data':reportObj,
+                                    'name':reportName,
+                                    'meta':{},
+                                    'hidden':1, 
+                                    'provenance':provenance
+                                    }
+                                    ]
+                                    })[0]
 
-def empty_cluster_results(err_msg, expr, workspace_service_url, param, logger, ws):
+    return { "report_name" : reportName,"report_ref" : "{0}/{1}/{2}".format(report_info[6],report_info[0],report_info[4]) }
 
-    #clrst = {'feature_clusters' : [{'id_to_pos' : {} }], 
-    clrst = {'feature_clusters' : [], 
-             'report' : { 
-                 'checkTypeDetected' : '',
-                 'checkUsed' : '',
-                 'checkDescriptions' : [],
-                 'checkResults' : [],
-                 'messages' : [],
-                 'warnings' : [],
-                 'errors' : [err_msg]
-                        }
-            }
-
-    ws.save_objects({'workspace' : param['workspace_name'], 'objects' : [{'type' : 'KBaseFeatureValues.FeatureClusters',
-                                                                          'data' : clrst,
-
-                                                                          'name' : (param['out_object_name'])}]})
-
-def clean_up_expr_matrix(fn, logger):
-    pass
-    
 
 #END_HEADER
 
@@ -82,6 +75,10 @@ class CoExpression:
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
     #########################################
+    VERSION = "1.0.4"
+    GIT_URL = "https://github.com/sjyoo/coexpression"
+    GIT_COMMIT_HASH = "cd2d4e4351c6e80cf4b642f72f4fd1a5c0576617"
+    
     #BEGIN_CLASS_HEADER
     FVE_2_TSV = 'trns_transform_KBaseFeatureValues_ExpressionMatrix_to_TSV'
     TSV_2_FVE = 'trns_transform_TSV_Exspression_to_KBaseFeatureValues_ExpressionMatrix'
@@ -104,6 +101,29 @@ class CoExpression:
     __SHOCK_URL = 'https://ci.kbase.us/services/shock-api'
     __PUBLIC_SHOCK_NODE = 'true'
     logger = None
+
+
+    def _dumpExp2File(self, oexpr, odir, ofn):
+        try:
+            os.makedirs(odir)
+        except:
+            pass
+
+        try:
+            df = pd.DataFrame(oexpr['data']['values'], index=oexpr['data']['row_ids'], columns=oexpr['data']['col_ids'])
+            mask = pd.Series(df.index == 'NA').add(pd.Series(df.index == '')).values == 0  # remove 'NA' or '' (missing gene name)
+            df = df.iloc[mask,]
+            df.to_csv(path_or_buf = odir + "/" + ofn, sep='\t', na_rep = 'NA' )
+        except:
+            self.logger.error("Failed to dump expression object into tsv file:" + traceback.format_exc());
+            raise
+        
+    def _subselectExp(self, oexpr, gl):
+        exp_idx = [oexpr['data']['row_ids'].index(x) for x in gl]
+        oexpr['data']['row_ids'] = [oexpr['data']['row_ids'][x] for x in exp_idx]
+        oexpr['data']['values'] = [oexpr['data']['values'][x] for x in exp_idx]
+        return oexpr
+
     #END_CLASS_HEADER
 
     # config contains contents of config file in a hash or None if it couldn't
@@ -115,8 +135,8 @@ class CoExpression:
               self.__WS_URL = config['ws_url']
         if 'shock_url' in config:
               self.__SHOCK_URL = config['shock_url']
-	if 'hs_url' in config:
-	      self.__HS_URL = config['hs_url']
+        if 'hs_url' in config:
+          self.__HS_URL = config['hs_url']
         if 'cluster_dir' in config:
               self.__CLSTR_DIR = config['cluster_dir']
         if 'final_dir' in config:
@@ -125,9 +145,9 @@ class CoExpression:
               self.__COEX_FILTER = config['coex_filter']
         if 'coex_cluster' in config:
               self.__COEX_CLUSTER = config['coex_cluster']
-	if 'force_shock_node_2b_public' in config: # expect 'true' or 'false' string
-	      self.__PUBLIC_SHOCK_NODE = config['force_shock_node_2b_public']
-	
+        if 'force_shock_node_2b_public' in config: # expect 'true' or 'false' string
+          self.__PUBLIC_SHOCK_NODE = config['force_shock_node_2b_public']
+    
         # logging
         self.logger = logging.getLogger('CoExpression')
         if 'log_level' in config:
@@ -142,6 +162,7 @@ class CoExpression:
         self.logger.info("Logger was set")
         #END_CONSTRUCTOR
         pass
+    
 
     def diff_p_distribution(self, ctx, args):
         # ctx is the context object
@@ -178,46 +199,28 @@ class CoExpression:
         expr = ws.get_objects([{'workspace': param['workspace_name'], 'name' : param['object_name']}])[0]['data']
  
  
-        cmd_dowload_cvt_tsv = [self.FVE_2_TSV, '--workspace_service_url', self.__WS_URL, 
-                                          '--workspace_name', param['workspace_name'],
-                                          '--object_name', param['object_name'],
-                                          '--working_directory', self.RAWEXPR_DIR,
-                                          '--output_file_name', self.EXPRESS_FN
-                              ]
- 
-        # need shell in this case because the java code is depending on finding the KBase token in the environment
-        #  -- copied from FVE_2_TSV
-        tool_process = subprocess.Popen(" ".join(cmd_dowload_cvt_tsv), stderr=subprocess.PIPE, shell=True, env=eenv)
-        stdout, stderr = tool_process.communicate()
-        
-        if stdout is not None and len(stdout) > 0:
-            self.logger.info(stdout)
- 
-        if stderr is not None and len(stderr) > 0:
-            self.logger.info(stderr)
+        self._dumpExp2File(expr, self.RAWEXPR_DIR, self.EXPRESS_FN)
  
         self.logger.info("Identifying differentially expressed genes")
  
         ## Prepare sample file
         # detect num of columns
-        with open("{0}/{1}".format(self.RAWEXPR_DIR, self.EXPRESS_FN), 'r') as f:
-          fl = f.readline()
-        ncol = len(fl.split('\t'))
+        ncol = len(expr['data']['col_ids'])
         
         # force to use ANOVA if the number of sample is two
         if(ncol == 3): param['method'] = 'anova'
  
         with open("{0}/{1}".format(self.RAWEXPR_DIR, self.SAMPLE_FN), 'wt') as s:
           s.write("0")
-          for j in range(1,ncol-1):
+          for j in range(1,ncol):
             s.write("\t{0}".format(j))
           s.write("\n")
  
  
         ## Run coex_filter
         cmd_coex_filter = [self.COEX_FILTER, '-i', "{0}/{1}".format(self.RAWEXPR_DIR, self.EXPRESS_FN), '-o', "{0}/{1}".format(self.FLTRD_DIR, self.FLTRD_FN),
-                           '-m', param['method'], '-n', '10', '-s', "{0}/{1}".format(self.RAWEXPR_DIR, self.SAMPLE_FN),
-                           '-x', "{0}/{1}".format(self.RAWEXPR_DIR, self.GENELST_FN), '-t', 'y', '-j', self.PVFDT_FN]
+           '-m', param['method'], '-n', '10', '-s', "{0}/{1}".format(self.RAWEXPR_DIR, self.SAMPLE_FN),
+           '-x', "{0}/{1}".format(self.RAWEXPR_DIR, self.GENELST_FN), '-t', 'y', '-j', self.PVFDT_FN]
         if 'num_features' in param:
           cmd_coex_filter.append("-n")
           cmd_coex_filter.append(str(param['num_features']))
@@ -295,44 +298,29 @@ class CoExpression:
 
         param = args
  
+        provenance = [{}]
+        if 'provenance' in ctx:
+                provenance = ctx['provenance']
+        provenance[0]['input_ws_objects']=[param['workspace_name']+'/'+param['object_name']]
  
         from biokbase.workspace.client import Workspace
         ws = Workspace(url=self.__WS_URL, token=token)
         expr = ws.get_objects([{'workspace': param['workspace_name'], 'name' : param['object_name']}])[0]['data']
  
- 
-        cmd_dowload_cvt_tsv = [self.FVE_2_TSV, '--workspace_service_url', self.__WS_URL, 
-                                          '--workspace_name', param['workspace_name'],
-                                          '--object_name', param['object_name'],
-                                          '--working_directory', self.RAWEXPR_DIR,
-                                          '--output_file_name', self.EXPRESS_FN
-                              ]
- 
-        # need shell in this case because the java code is depending on finding the KBase token in the environment
-        #  -- copied from FVE_2_TSV
-        tool_process = subprocess.Popen(" ".join(cmd_dowload_cvt_tsv), stderr=subprocess.PIPE, shell=True, env=eenv)
-        stdout, stderr = tool_process.communicate()
-        
-        if stdout is not None and len(stdout) > 0:
-            self.logger.info(stdout)
- 
-        if stderr is not None and len(stderr) > 0:
-            self.logger.info(stderr)
+        self._dumpExp2File(expr, self.RAWEXPR_DIR, self.EXPRESS_FN)
  
         self.logger.info("Identifying differentially expressed genes")
  
         ## Prepare sample file
         # detect num of columns
-        with open("{0}/{1}".format(self.RAWEXPR_DIR, self.EXPRESS_FN), 'r') as f:
-          fl = f.readline()
-        ncol = len(fl.split('\t'))
+        ncol = len(expr['data']['col_ids'])
         
         # force to use ANOVA if the number of sample is two
         if(ncol == 3): param['method'] = 'anova'
  
         with open("{0}/{1}".format(self.RAWEXPR_DIR, self.SAMPLE_FN), 'wt') as s:
           s.write("0")
-          for j in range(1,ncol-1):
+          for j in range(1,ncol):
             s.write("\t{0}".format(j))
           s.write("\n")
  
@@ -351,7 +339,7 @@ class CoExpression:
  
         if 'p_value' not in param and 'num_features' not in param:
           self.logger.error("One of p_value or num_features must be defined");
-          return empty_results("One of p_value or num_features must be defined", expr,self.__WS_URL, param, self.logger, ws)
+          return error_report("One of p_value or num_features must be defined", expr,self.__WS_URL, param, provenance, ws)
           #sys.exit(2) #TODO: No error handling in narrative so we do graceful termination
  
         #if 'p_value' in param and 'num_features' in param:
@@ -367,19 +355,6 @@ class CoExpression:
         if stderr is not None and len(stderr) > 0:
             self.logger.info(stderr)
  
-        ## Header correction
-        try:
-            with open("{0}/{1}".format(self.FLTRD_DIR, self.FLTRD_FN), 'r') as ff:
-                fe = ff.readlines()
-            with open("{0}/{1}".format(self.FLTRD_DIR, self.FLTRD_FN), 'w') as ff:
-                ff.write(fl) # use original first line that has correct header information
-                fe.pop(0)
-                ff.writelines(fe)
-        except:
-            self.logger.error("Output was not found");
-            return empty_results("Increase p_value or specify num_features", expr,self.__WS_URL, param, self.logger, ws)
-            
-        
         ## checking genelist
         with open("{0}/{1}".format(self.RAWEXPR_DIR, self.GENELST_FN),'r') as glh:
           gl = glh.readlines()
@@ -387,75 +362,19 @@ class CoExpression:
  
         if(len(gl) < 1) :
           self.logger.error("No genes are selected")
-          return empty_results("Increase p_value or specify num_features", expr,self.__WS_URL, param, self.logger, ws)
+          return error_report("Increase p_value or specify num_features", expr,self.__WS_URL, param, provenance, ws)
           #sys.exit(4)
  
         ## Upload FVE
-        # change workspace to be the referenced object's workspace_name because it may not be in the same working ws due to referencing
-        # Updates: change missing genome handling strategy by copying reference to working workspace
-        cmd_upload_expr = [self.TSV_2_FVE, '--workspace_service_url', self.__WS_URL, 
-                                          '--object_name', param['out_expr_object_name'],
-                                          '--working_directory', self.FINAL_DIR,
-                                          '--input_directory', self.FLTRD_DIR,
-                                          '--output_file_name', self.FINAL_FN
-                              ]
-        tmp_ws = param['workspace_name']
-        if 'genome_ref' in expr:
-            obj_infos = ws.get_object_info_new({"objects": [{'ref':expr['genome_ref']}]})[0]
- 
-            if len(obj_infos) < 1:
-                self.logger.error("Couldn't find {0} from the workspace".format(expr['genome_ref']))
-                raise Exception("Couldn't find {0} from the workspace".format(expr['genome_ref']))
- 
-            #tmp_ws = "{0}".format(obj_infos[7])
-            self.logger.info("{0} => {1} / {2}".format(expr['genome_ref'], obj_infos[7], obj_infos[1]))
-            if obj_infos[7] != param['workspace_name']:
-                #we need to copy it from the other workspace
-                try:
-                  self.logger.info("trying to copy the referenced genome object : {0}".format(expr['genome_ref']))
-                  ws.copy_object({'from' : {'ref' : expr['genome_ref']},'to' : {'workspace': param['workspace_name'], 'name' : obj_infos[1]}})
-                  # add genome_object_name only after successful copy
-                  cmd_upload_expr.append('--genome_object_name')
-                  cmd_upload_expr.append(obj_infos[1])
-                except:
-                  # no permission or any issues... then, give up providing genome reference
-                  self.logger.info("".join(traceback.format_exc()))
-                  pass
-            else:
-                # it is local... we can simply add reference without copying genome
-                cmd_upload_expr.append('--genome_object_name')
-                cmd_upload_expr.append(obj_infos[1])
- 
-        # updated ws name
-        cmd_upload_expr.append('--workspace_name')
-        cmd_upload_expr.append(tmp_ws)
- 
-        self.logger.info(" ".join(cmd_upload_expr))
- 
-        tool_process = subprocess.Popen(" ".join(cmd_upload_expr), stderr=subprocess.PIPE, shell=True, env=eenv)
-        stdout, stderr = tool_process.communicate()
-        
-        if stdout is not None and len(stdout) > 0:
-            self.logger.info(stdout)
- 
-        if stderr is not None and len(stderr) > 0:
-            self.logger.info(stderr)
- 
-        
-        with open("{0}/{1}".format(self.FINAL_DIR,self.FINAL_FN),'r') as et:
-          eo = json.load(et)
- 
         if 'description' not in expr: 
             expr['description'] = "Filtered Expression Matrix"
         expr['description'] += " : Filtered by '{1}' method ".format(expr['description'], param['method'])
  
-        if 'feature_mapping' in expr and 'feature_mapping' in eo:
-            expr['feature_mapping'] = eo['feature_mapping']
-        expr['data'] = eo['data']
+        expr = self._subselectExp(expr, gl)
  
-        ws.save_objects({'workspace' : param['workspace_name'], 'objects' : [{'type' : 'KBaseFeatureValues.ExpressionMatrix',
+        ex_info = ws.save_objects({'workspace' : param['workspace_name'], 'objects' : [{'type' : 'KBaseFeatureValues.ExpressionMatrix',
                                                                               'data' : expr,
-                                                                              'name' : (param['out_expr_object_name'])}]})
+                                                                              'name' : (param['out_expr_object_name'])}]})[0]
  
         ## Upload FeatureSet
         fs ={'elements': {}}
@@ -469,10 +388,44 @@ class CoExpression:
           else:
             fs['elements'][g] = []
  
-        ws.save_objects({'workspace' : param['workspace_name'], 'objects' : [{'type' : 'KBaseCollections.FeatureSet',
+        fs_info = ws.save_objects({'workspace' : param['workspace_name'], 'objects' : [{'type' : 'KBaseCollections.FeatureSet',
                                                                               'data' : fs,
-                                                                              'name' : (param['out_fs_object_name'])}]})
-        result = {'workspace_name' : param['workspace_name'], 'out_expr_object_name' : param['out_expr_object_name'], 'out_fs_object_name' : param['out_fs_object_name']}
+                                                                              'name' : (param['out_fs_object_name'])}]})[0]
+
+        ## Create report object:
+	report = "Filtering expression matrix using {0} on {1}".format(param['method'],param['object_name'])
+        reportObj = {
+                        'objects_created':[{
+                                'ref':"{0}/{1}/{2}".format(fs_info[6], fs_info[0], fs_info[4]),
+                                'description':'Filtered FeatureSet' },
+                             {
+                                'ref':"{0}/{1}/{2}".format(ex_info[6], ex_info[0], ex_info[4]),
+                                'description':'Filetered ExpressionMatrix' 
+                             }],
+                        'text_message':report
+                    }
+
+        # generate a unique name for the Method report
+        reportName = 'FilterExpression_'+str(hex(uuid.getnode()))
+        report_info = ws.save_objects({
+                                        'id':ex_info[6],
+                                        'objects':[
+                                        {
+                                        'type':'KBaseReport.Report',
+                                        'data':reportObj,
+                                        'name':reportName,
+                                        'meta':{},
+                                        'hidden':1, 
+                                        'provenance':provenance
+                                        }
+                                        ]
+                                        })[0]
+
+        result = { "report_name" : reportName,"report_ref" : "{0}/{1}/{2}".format(report_info[6],report_info[0],report_info[4]) }
+
+
+
+        #result = {'workspace_name' : param['workspace_name'], 'out_expr_object_name' : param['out_expr_object_name'], 'out_fs_object_name' : param['out_fs_object_name']}
         #END filter_genes
 
         # At some point might do deeper type checking...
@@ -507,6 +460,11 @@ class CoExpression:
         token = ctx['token']
 
         param = args
+
+        provenance = [{}]
+        if 'provenance' in ctx:
+                provenance = ctx['provenance']
+        provenance[0]['input_ws_objects']=[param['workspace_name']+'/'+param['object_name']]
  
         from biokbase.workspace.client import Workspace
         ws = Workspace(url=self.__WS_URL, token=token)
@@ -515,36 +473,18 @@ class CoExpression:
  
         eenv = os.environ.copy()
         eenv['KB_AUTH_TOKEN'] = token
-        cmd_dowload_cvt_tsv = [self.FVE_2_TSV, '--workspace_service_url', self.__WS_URL, 
-                                          '--workspace_name', param['workspace_name'],
-                                          '--object_name', param['object_name'],
-                                          '--working_directory', self.RAWEXPR_DIR,
-                                          '--output_file_name', self.EXPRESS_FN
-                              ]
+        self._dumpExp2File(expr, self.RAWEXPR_DIR, self.EXPRESS_FN)
  
-        # need shell in this case because the java code is depending on finding the KBase token in the environment
-        #  -- copied from FVE_2_TSV
-        tool_process = subprocess.Popen(" ".join(cmd_dowload_cvt_tsv), stderr=subprocess.PIPE, shell=True, env=eenv)
-        stdout, stderr = tool_process.communicate()
-        
-        if stdout is not None and len(stdout) > 0:
-            self.logger.info(stdout)
- 
-        if stderr is not None and len(stderr) > 0:
-            self.logger.info(stderr)
-            #raise Exception(stderr)
- 
-        self.logger.info("Coexpression clustering analysis")
+        self.logger.info("Identifying differentially expressed genes")
  
         ## Prepare sample file
         # detect num of columns
-        with open("{0}/{1}".format(self.RAWEXPR_DIR, self.EXPRESS_FN), 'r') as f:
-          fl = f.readline()
-        ncol = len(fl.split('\t'))
+        ncol = len(expr['data']['col_ids'])
         
+        # grouping information 
         with open("{0}/{1}".format(self.RAWEXPR_DIR, self.SAMPLE_FN), 'wt') as s:
           s.write("0")
-          for j in range(1,ncol-1):
+          for j in range(1,ncol):
             s.write("\t{0}".format(j))
           s.write("\n")
  
@@ -602,7 +542,7 @@ class CoExpression:
  
         if(len(cid2genelist) < 1) :
           self.logger.error("Clustering failed")
-          return empty_results("Error: No cluster output", expr,self.__WS_URL, param, self.logger, ws)
+          return error_report("Error: No cluster output", expr,self.__WS_URL, param, provenance, ws)
           #sys.exit(4)
  
         self.logger.info("Uploading the results onto WS")
@@ -614,10 +554,37 @@ class CoExpression:
         feature_clusters ={"original_data": "{0}/{1}".format(param['workspace_name'],param['object_name']),
                            "feature_clusters": feature_clusters}
  
-        ws.save_objects({'workspace' : param['workspace_name'], 'objects' : [{'type' : 'KBaseFeatureValues.FeatureClusters',
+        cl_info = ws.save_objects({'workspace' : param['workspace_name'], 'objects' : [{'type' : 'KBaseFeatureValues.FeatureClusters',
                                                                           'data' : feature_clusters,
-                                                                          'name' : (param['out_object_name'])}]})
-        result = {'workspace_name' : param['workspace_name'], 'out_object_name' : param['out_object_name']}
+                                                                          'name' : (param['out_object_name'])}]})[0]
+        ## Create report object:
+	report = "Clustering expression matrix using WGCNA on {0}".format(param['object_name'])
+        reportObj = {
+                        'objects_created':[                             {
+                                'ref':"{0}/{1}/{2}".format(cl_info[6], cl_info[0], cl_info[4]),
+                                'description':'WGCNA FeatureClusters' 
+                             }],
+                        'text_message':report
+                    }
+
+        # generate a unique name for the Method report
+        reportName = 'WGCNA_Clusters_'+str(hex(uuid.getnode()))
+        report_info = ws.save_objects({
+                                        'id':cl_info[6],
+                                        'objects':[
+                                        {
+                                        'type':'KBaseReport.Report',
+                                        'data':reportObj,
+                                        'name':reportName,
+                                        'meta':{},
+                                        'hidden':1, 
+                                        'provenance':provenance
+                                        }
+                                        ]
+                                        })[0]
+
+        result = { "report_name" : reportName,"report_ref" : "{0}/{1}/{2}".format(report_info[6],report_info[0],report_info[4]) }
+        #result = {'workspace_name' : param['workspace_name'], 'out_object_name' : param['out_object_name']}
         #END const_coex_net_clust
 
         # At some point might do deeper type checking...
@@ -665,28 +632,6 @@ class CoExpression:
         oexpr = ws.get_objects([{ 'ref' : fc['original_data']}])[0]
 
         df2 = pd.DataFrame(oexpr['data']['data']['values'], index=oexpr['data']['data']['row_ids'], columns=oexpr['data']['data']['col_ids'])
-#        cmd_dowload_cvt_tsv = [self.FVE_2_TSV, '--workspace_service_url', self.__WS_URL, 
-#                                          '--workspace_name', oexpr['info'][7],
-#                                          '--object_name', oexpr['info'][1],
-#                                          '--working_directory', self.RAWEXPR_DIR,
-#                                          '--output_file_name', self.EXPRESS_FN
-#                              ]
-# 
-#        # need shell in this case because the java code is depending on finding the KBase token in the environment
-#        #  -- copied from FVE_2_TSV
-#        tool_process = subprocess.Popen(" ".join(cmd_dowload_cvt_tsv), stderr=subprocess.PIPE, shell=True, env=eenv)
-#        stdout, stderr = tool_process.communicate()
-#        
-#        if stdout is not None and len(stdout) > 0:
-#            self.logger.info(stdout)
-# 
-#        if stderr is not None and len(stderr) > 0:
-#            self.logger.info(stderr)
-# 
-#        df = pd.read_csv("{0}/{1}".format(self.RAWEXPR_DIR,self.EXPRESS_FN), sep='\t')
-#        df2 = df[df.columns[1:]]
-#        rn = df[df.columns[0]]
-#        df2.index = rn
 
         # L2 normalization
         df3 = df2.div(df2.pow(2).sum(axis=1).pow(0.5), axis=0)
@@ -911,6 +856,7 @@ class CoExpression:
         self.logger.info("Saving the results")
         sstatus = ws.save_objects({'workspace' : param['workspace_name'], 'objects' : [{'type' : 'MAK.FloatDataTable',
                                                                               'data' : fdt,
+                                                                              'hidden':1, 
                                                                               'name' : "{0}.fdt".format(param['out_figure_object_name'])}]})
 
         data_ref = "{0}/{1}/{2}".format(sstatus[0][6], sstatus[0][0], sstatus[0][4])
@@ -918,7 +864,15 @@ class CoExpression:
 
         sstatus = ws.save_objects({'workspace' : param['workspace_name'], 'objects' : [{'type' : 'CoExpression.FigureProperties',
                                                                               'data' : fig_properties,
+                                                                              'hidden':1, 
+                                                                              'name' : "{0}.fp".format(param['out_figure_object_name'])}]})
+
+        mchp = {}
+        mchp['figure_obj'] = "{0}/{1}/{2}".format(sstatus[0][6], sstatus[0][0], sstatus[0][4])
+        sstatus = ws.save_objects({'workspace' : param['workspace_name'], 'objects' : [{'type' : 'CoExpression.MulticlusterHeatmapPlot',
+                                                                              'data' : mchp,
                                                                               'name' : (param['out_figure_object_name'])}]})
+
         result = fig_properties
         #END view_heatmap
 
@@ -928,3 +882,10 @@ class CoExpression:
                              'result is not type dict as required.')
         # return the results
         return [result]
+
+    def status(self, ctx):
+        #BEGIN_STATUS
+        returnVal = {'state': "OK", 'message': "", 'version': self.VERSION, 
+                     'git_url': self.GIT_URL, 'git_commit_hash': self.GIT_COMMIT_HASH}
+        #END_STATUS
+        return [returnVal]

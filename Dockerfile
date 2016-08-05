@@ -1,6 +1,7 @@
-FROM kbase/kbase:sdkbase.latest
+FROM dockerhub-prod.kbase.us/kbase:sdkbase.latest
 MAINTAINER KBase Developer
 # Install the SDK (should go away eventually)
+RUN df -h
 RUN \
   . /kb/dev_container/user-env.sh && \
   cd /kb/dev_container/modules && \
@@ -10,12 +11,16 @@ RUN \
   git clone https://github.com/kbase/kb_sdk -b develop && \
   rm -rf transform && \
   git clone https://github.com/kbase/transform && \
+  rm -rf coex_helper && \
+  git clone https://github.com/sjyoo/coex_helper && \
   cd /kb/dev_container/modules/jars && \
   make deploy && \
   cd /kb/dev_container/modules/kb_sdk && \
   make && make deploy && \
-  cd /kb/dev_container/modules/transform && \
-  make && make deploy 
+  cd /kb/dev_container/modules/coex_helper && \
+  make update-R && \
+  cd /kb/dev_container/modules/transform 
+#  make && make deploy 
 
 ####END OF KBASE #############################
 #apt-get update && apt-get install -y ant && \
@@ -23,18 +28,21 @@ RUN \
 # Insert apt-get instructions here to install
 # any required dependencies for your module.
 # -----------------------------------------
-RUN apt-get update && apt-get install -y unzip gcc bzip2 ncurses-dev
+
+RUN \
+  apt-get update && \
+  apt-get install -y bzip2 \
+                     gcc \
+		     ncurses-dev \
+		     tofrodos \
+		     unzip 
 RUN pip install mpipe
 RUN pip install pandas numpy
 WORKDIR /kb/module
 COPY ./deps /kb/deps
-### R install docker file: https://github.com/rocker-org/rocker/blob/master/rstudio/Dockerfile
-# the following would not correctly have TARGET, so that the installation would be unused in the end
-#RUN \
-#  . /kb/dev_container/user-env.sh && \
-#  bash /kb/deps/WGCNA/install-r-packages.sh 
-
 COPY ./ /kb/module
+# Windows compatibility line
+#RUN bash -c "for i in `find . -name '*.sh'`; do dos2unix -v $i; done"
 RUN \
   . /kb/dev_container/user-env.sh && \
   cd /kb/module && \
