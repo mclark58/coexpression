@@ -23,7 +23,7 @@ EXECUTABLE_SCRIPT_NAME = run_$(SERVICE_NAME).sh
 TEST_DIR = ltest
 
 
-default: build-libs build-executable-script-python
+default: compile build-executable-script-python
 
 include $(TOP_DIR)/tools/Makefile.common
 include $(TOP_DIR)/tools/Makefile.common.rules
@@ -128,7 +128,7 @@ endif
 
 
 
-build-libs:
+compile:
 	mkdir -p scripts; kb-sdk compile $(SERVICE_SPEC)\
 		--out lib\
 		--pyclname biokbase.$(SERVICE_NAME).$(SERVICE_NAME)Client \
