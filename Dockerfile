@@ -1,4 +1,5 @@
-FROM kbase/kbase:sdkbase.latest MAINTAINER KBase Developer 
+FROM kbase/kbase:sdkbase.latest 
+MAINTAINER KBase Developer 
 # Install the SDK (should go away eventually)
 RUN df -h
 RUN \
