@@ -66,8 +66,8 @@ else
 endif
 
 update-R:
-	R --vanilla --slave -e "library('WGCNA')";  \
-        if [ $$? -ne 0 ] ; then export TARGET=$(TARGET)  && export R_LIBS=$(TARGET)/lib  && $(DIR)/deps/WGCNA/install-r-packages.sh ; else echo "WGCNA is installed"; fi
+	export TARGET=$(TARGET) && export R_LIBS=$(TARGET)/lib && R --vanilla --slave -e "library('WGCNA')" &&  \
+        if [ $$? -ne 0 ] ; then  $(DIR)/deps/WGCNA/install-r-packages.sh ; else echo "WGCNA is installed on $(TARGET)/lib"; fi
 	
 dk-build:
 	docker build -t kbase/coex:test .
