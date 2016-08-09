@@ -2,8 +2,8 @@ FROM kbase/kbase:sdkbase.latest
 MAINTAINER KBase Developer 
 # Install the SDK (should go away eventually)
 RUN \
-  cd /kb/dev_container \
-  touch mark.txt  \
+  cd /kb/dev_container && \
+  touch mark.txt &&  \
   . /kb/dev_container/user-env.sh && \
   cd /kb/dev_container/modules && \
   rm -rf jars && \
