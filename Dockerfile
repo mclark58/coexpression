@@ -2,7 +2,6 @@ FROM kbase/kbase:sdkbase.latest
 MAINTAINER KBase Developer 
 # Install the SDK (should go away eventually)
 RUN \
-  touch mark.txt && \
   . /kb/dev_container/user-env.sh && \
   cd /kb/dev_container/modules && \
   rm -rf jars && \
@@ -26,6 +25,10 @@ RUN \
 # Insert apt-get instructions here to install
 # any required dependencies for your module.
 # -----------------------------------------
+#RUN \
+#  . /kb/dev_container/user-env.sh && \
+#  cd /kb/dev_container/modules/coex_helper && \
+#  make update-R 
 
 RUN \
   apt-get update && \
@@ -41,10 +44,6 @@ COPY ./deps /kb/deps
 COPY ./ /kb/module
 # Windows compatibility line
 #RUN bash -c "for i in `find . -name '*.sh'`; do dos2unix -v $i; done"
-RUN \
-  . /kb/dev_container/user-env.sh && \
-  cd /kb/module && \
-  make update-R 
 RUN \
   . /kb/dev_container/user-env.sh && \
   cd /kb/module && \
