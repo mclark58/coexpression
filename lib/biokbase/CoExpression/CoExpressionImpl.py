@@ -864,7 +864,7 @@ class CoExpression:
 
         sstatus = ws.save_objects({'workspace' : param['workspace_name'], 'objects' : [{'type' : 'CoExpression.FigureProperties',
                                                                               'data' : fig_properties,
-                                                                              'hidden':1, 
+                                                                              #'hidden':1, 
                                                                               'name' : "{0}".format(param['out_figure_object_name'])}]})
                                                                               #'name' : "{0}.fp".format(param['out_figure_object_name'])}]})
 
