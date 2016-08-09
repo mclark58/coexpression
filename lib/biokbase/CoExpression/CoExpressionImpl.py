@@ -865,13 +865,14 @@ class CoExpression:
         sstatus = ws.save_objects({'workspace' : param['workspace_name'], 'objects' : [{'type' : 'CoExpression.FigureProperties',
                                                                               'data' : fig_properties,
                                                                               'hidden':1, 
-                                                                              'name' : "{0}.fp".format(param['out_figure_object_name'])}]})
+                                                                              'name' : "{0}".format(param['out_figure_object_name'])}]})
+                                                                              #'name' : "{0}.fp".format(param['out_figure_object_name'])}]})
 
-        mchp = {}
-        mchp['figure_obj'] = "{0}/{1}/{2}".format(sstatus[0][6], sstatus[0][0], sstatus[0][4])
-        sstatus = ws.save_objects({'workspace' : param['workspace_name'], 'objects' : [{'type' : 'CoExpression.MulticlusterHeatmapPlot',
-                                                                              'data' : mchp,
-                                                                              'name' : (param['out_figure_object_name'])}]})
+        #mchp = {}
+        #mchp['figure_obj'] = "{0}/{1}/{2}".format(sstatus[0][6], sstatus[0][0], sstatus[0][4])
+        #sstatus = ws.save_objects({'workspace' : param['workspace_name'], 'objects' : [{'type' : 'CoExpression.MulticlusterHeatmapPlot',
+        #                                                                      'data' : mchp,
+        #                                                                      'name' : (param['out_figure_object_name'])}]})
 
         result = fig_properties
         #END view_heatmap
