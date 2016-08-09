@@ -1,4 +1,4 @@
-FROM dockerhub-prod.kbase.us/kbase:sdkbase.latest
+FROM kbase/kbase:sdkbase.latest
 MAINTAINER KBase Developer
 # Install the SDK (should go away eventually)
 RUN df -h
