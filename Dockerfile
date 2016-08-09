@@ -1,6 +1,4 @@
-FROM kbase/kbase:sdkbase.latest
-MAINTAINER KBase Developer
-# Install the SDK (should go away eventually)
+FROM kbase/kbase:sdkbase.latest MAINTAINER KBase Developer 
 # Install the SDK (should go away eventually)
 RUN df -h
 RUN \
@@ -19,9 +17,7 @@ RUN \
   cd /kb/dev_container/modules/kb_sdk && \
   make && make deploy && \
   cd /kb/dev_container/modules/coex_helper && \
-  make update-R && \
-  cd /kb/dev_container/modules/transform 
-#  make && make deploy 
+  make update-R
 
 ####END OF KBASE #############################
 #apt-get update && apt-get install -y ant && \
