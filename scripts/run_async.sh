@@ -4,6 +4,6 @@ WD=/kb/module/work
 if [ -f $WD/token ]; then
     cat $WD/token | xargs sh $script_dir/../bin/run_coexpression_async_job.sh $WD/input.json $WD/output.json
 else
-    echo "File $WD/token doesn't exist, aborting."
+    echo "File $WD/token doesn't exist,  aborting."
     exit 1
 fi
