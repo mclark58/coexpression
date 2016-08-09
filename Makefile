@@ -76,7 +76,7 @@ dk-bash:
 
 deploy: deploy-scripts
 
-deploy-scripts: deploy-libs deploy-executable-script update-R
+deploy-scripts: deploy-libs deploy-executable-script 
 
 deploy-service: deploy-libs deploy-executable-script deploy-service-scripts deploy-cfg
 
