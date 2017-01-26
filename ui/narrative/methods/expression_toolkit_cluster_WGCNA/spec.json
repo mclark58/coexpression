@@ -114,17 +114,13 @@
 	}
       ],
       "output_mapping" : [
-        {
-          "input_parameter": "output_cluster_set",
-          "target_property": "clusterSetID"
+	{
+         "service_method_output_path": [0,"output"],
+         "target_property": "output"
         },
         {
-          "narrative_system_variable": "workspace",
-          "target_property": "workspaceID"
-        },
-        {
-          "service_method_output_path": [],
-          "target_property": "job_id"
+         "service_method_output_path": [0,"workspace"],
+         "target_property": "workspace"
         }
       ]
     }
