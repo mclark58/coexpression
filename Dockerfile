@@ -10,12 +10,16 @@ RUN \
   git clone https://github.com/kbase/kb_sdk -b develop && \
   rm -rf transform && \
   git clone https://github.com/kbase/transform && \
-  rm -rf coex_helper && \
-  git clone https://github.com/sjyoo/coex_helper && \
   cd /kb/dev_container/modules/jars && \
   make deploy && \
   cd /kb/dev_container/modules/kb_sdk && \
-  make && make deploy && \
+  make && make deploy 
+
+RUN \
+  . /kb/dev_container/user-env.sh && \
+  cd /kb/dev_container/modules && \
+  rm -rf coex_helper && \
+  git clone https://github.com/sjyoo/coex_helper && \
   cd /kb/dev_container/modules/coex_helper && \
   make update-R
 
