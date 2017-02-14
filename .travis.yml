@@ -3,13 +3,12 @@ language: python
 python:
     - "2.7"
 
-sudo: true
+sudo: required
 
 services:
     - docker
 
 before_install:
-    - sudo apt-get -o Dpkg::Options::="--force-confnew" install -y docker-engine=${DOCKER_VERSION}
     - docker version
     - javac -version
     - java -version
