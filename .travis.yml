@@ -28,7 +28,7 @@ install:
     - kb-sdk test -s
     - sed -i 's/test_user=/test_user=kbasetest/' test_local/test.cfg
     - sed -i 's/test_password=/test_password=@Suite525/' test_local/test.cfg
-    - sed -i 's\https://appdev.kbase.us/services\https://ci.kbase.us/services\' test.cfg
+    - sed -i 's\https://appdev.kbase.us/services\https://ci.kbase.us/services\' test_local/test.cfg
 
 script:
     - kbsdk test -s
