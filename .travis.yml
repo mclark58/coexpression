@@ -1,0 +1,37 @@
+language: python
+
+python:
+    - "2.7"
+
+sudo: true
+
+services:
+    - docker
+
+before install:
+    - sudo apt-get -o Dpkg::Options::="--force-confnew" install -y docker-engine
+=${DOCKER_VERSION}
+    - docker version
+    - javac -version
+    - java -version
+
+install:
+    - git clone https://github.com/kbase/jars
+    - git clone https://github.com/kbase/kb_sdk
+    - cd kb_sdk
+    - make
+    - make sdkbase
+    - docker images
+    - export PATH=$(pwd)/bin:$PATH
+    - cd ../
+    - git clone https://github.com/arfathpasha/coexpression
+    - cd coexpression
+    - mkdir test
+    - kb-sdk test -s
+    - sed -i 's/test_user=/test_user=kbasetest/' test_local/test.cfg
+    - sed -i 's/test_password=/test_password=@Suite525/' test_local/test.cfg
+    - sed -i 's\https://appdev.kbase.us/services\https://ci.kbase.us/services\' test.cfg
+
+script:
+    - kbsdk test -s
+
