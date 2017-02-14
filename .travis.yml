@@ -31,4 +31,4 @@ install:
     - sed -i 's\https://appdev.kbase.us/services\https://ci.kbase.us/services\' test_local/test.cfg
 
 script:
-    - kbsdk test -s
+    - kb-sdk test -s
