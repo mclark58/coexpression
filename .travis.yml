@@ -25,6 +25,8 @@ install:
     - git clone https://github.com/arfathpasha/coexpression
     - cd coexpression
     - mkdir test
+    # run the kb-sdk test command once to build missing module files and dirs
+    - kb-sdk test -s
     # add test config
     - sed -i 's/test_user=/test_user=kbasetest/' test_local/test.cfg
     - sed -i 's/test_password=/test_password=@Suite525/' test_local/test.cfg
