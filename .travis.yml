@@ -8,6 +8,13 @@ sudo: required
 services:
     - docker
 
+notifications:
+  email:
+    recipients:
+      - arfathpasha@gmail.com
+    on_success: never # default: change
+    on_failure: always # default: always
+
 before_install:
     - docker version
     - javac -version
@@ -22,7 +29,7 @@ install:
     - docker images
     - export PATH=$(pwd)/bin:$PATH
     - cd ../
-    - git clone https://github.com/arfathpasha/coexpression
+    - git clone https://github.com/sjyoo/coexpression
     - cd coexpression
     - mkdir test
     # run the kb-sdk test command once to build missing module files and dirs
@@ -31,7 +38,7 @@ install:
     - sed -i 's/test_user=/test_user=kbasetest/' test_local/test.cfg
     - sed -i 's/test_password=/test_password=@Suite525/' test_local/test.cfg
     - sed -i 's\https://appdev.kbase.us/services\https://ci.kbase.us/services\' test_local/test.cfg
-    # temporary fix for host to container user mapping
+    # temporary fix for host::container user mapping (until it is fixed in kb-sdk)
     - sed -i 's/$(id -u)/0:0/' test_local/run_tests.sh
 
 script:
