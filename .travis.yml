@@ -31,6 +31,7 @@ branches:
 
 before_install:
     - docker version
+    - python --version
     - javac -version
     - java -version
 
@@ -45,6 +46,7 @@ install:
     - cd ../
     - git clone https://github.com/sjyoo/coexpression
     - cd coexpression
+    # add missing module dir (should be added to the project and then removed from here)
     - mkdir test
     # run the kb-sdk test command once to build missing module files and dirs
     - kb-sdk test -s
