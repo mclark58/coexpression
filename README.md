@@ -9,5 +9,5 @@ master:  [![Build Status](https://travis-ci.org/arfathpasha/coexpression.svg?bra
 staging: [![Build Status](https://travis-ci.org/arfathpasha/coexpression.svg?branch=staging)](https://travis-ci.org/arfathpasha/coexpression)
 develop: [![Build Status](https://travis-ci.org/arfathpasha/coexpression.svg?branch=develop)](https://travis-ci.org/arfathpasha/coexpression)
 
-Code coverage: (develop branch)
-[![Coverage Status](https://coveralls.io/repos/github/arfathpasha/coexpression/badge.svg?branch=master)](https://coveralls.io/github/arfathpasha/catalog?branch=master)
+Code coverage: (master branch)
+[![Coverage Status](https://coveralls.io/repos/github/arfathpasha/coexpression/badge.svg?branch=master)](https://coveralls.io/github/arfathpasha/coexpression?branch=master)
