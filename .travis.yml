@@ -1,8 +1,5 @@
 language: python
 
-env:
-- TEST_USER=kbasetest
-- TEST_PASSWORD=@Suite525
 
 python:
     - "2.7"
@@ -45,6 +42,8 @@ install:
     # run the kb-sdk test command once to build missing module files and dirs
     - kb-sdk test -s
     # add test config
+    - export TEST_USER=kbasetest
+    - export TEST_PASSWORD=@Suite525
     - sed -i "s/test_user=/test_user=$TEST_USER/" test_local/test.cfg
     - sed -i "s/test_password=/test_password=$TEST_PASSWORD/" test_local/test.cfg
     - sed -i 's\https://appdev.kbase.us/services\https://ci.kbase.us/services\' test_local/test.cfg
