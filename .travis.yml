@@ -63,4 +63,5 @@ script:
     - kb-sdk test -s
     
 after_success:
+    - mv test/.coverage .
     - coveralls
