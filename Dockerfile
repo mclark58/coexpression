@@ -43,6 +43,7 @@ RUN \
 		     unzip 
 RUN pip install mpipe
 RUN pip install pandas numpy
+RUN pip install coverage
 WORKDIR /kb/module
 COPY ./deps /kb/deps
 COPY ./ /kb/module

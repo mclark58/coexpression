@@ -59,3 +59,6 @@ install:
 
 script:
     - kb-sdk test -s
+
+after_success:
+  coveralls

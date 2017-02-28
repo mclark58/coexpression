@@ -103,6 +103,7 @@ test: test-impl create-test-wrapper
 
 test-impl: create-test-wrapper
 	./$(TEST_DIR)/script_test/run_tests.sh
+	coverage report -m
 
 create-test-wrapper:
 	@echo "Creating test script wrapper"
@@ -111,9 +112,6 @@ ifeq ($(CONTAINER_DIR_NAME), dev_container)
 	echo 'export PATH=$(PATH):$(TARGET)/bin' >> $(TEST_DIR)/script_test/run_tests.sh
 	echo 'export KB_RUNTIME=$(DEPLOY_RUNTIME)' >> $(TEST_DIR)/script_test/run_tests.sh
 	echo 'export PYTHONPATH="$(DIR)/$(LIB_DIR)"' >> $(TEST_DIR)/script_test/run_tests.sh
-	echo 'python $(DIR)/$(TEST_DIR)/script_test/basic_test.py $$1 $$2 $$3' \
-		>> $(TEST_DIR)/script_test/run_tests.sh
-	chmod +x $(TEST_DIR)/script_test/run_tests.sh
 else
 	echo '#!/bin/bash' > $(TEST_DIR)/script_test/run_tests.sh
 	echo 'export PATH=$(PATH):$(TARGET)/bin' >> $(TEST_DIR)/script_test/run_tests.sh
@@ -121,11 +119,10 @@ else
 	echo 'export PYTHONPATH="$(TARGET)/lib"' >> $(TEST_DIR)/script_test/run_tests.sh
 	echo 'export KB_SERVICE_NAME="$(SERVICE_NAME)"' >> $(TEST_DIR)/script_test/run_tests.sh
 	echo 'export KB_DEPLOYMENT_CONFIG="$(DIR)/deploy.cfg"' >> $(TEST_DIR)/script_test/run_tests.sh # TODO: not sure about this line
-	echo 'python $(DIR)/$(TEST_DIR)/script_test/basic_test.py $$1 $$2 $$3' \
+endif
+	echo 'coverage run $(DIR)/$(TEST_DIR)/script_test/basic_test.py $$1 $$2 $$3' \
 		>> $(TEST_DIR)/script_test/run_tests.sh
 	chmod +x $(TEST_DIR)/script_test/run_tests.sh
-
-endif
 
 
 
