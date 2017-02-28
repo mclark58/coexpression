@@ -47,6 +47,8 @@ RUN pip install coverage
 WORKDIR /kb/module
 COPY ./deps /kb/deps
 COPY ./ /kb/module
+RUN chmod -R a+rw /kb/module
+RUN chmod +x /kb/module/ltest/script_test/run_tests.sh
 # Windows compatibility line
 #RUN bash -c "for i in `find . -name '*.sh'`; do dos2unix -v $i; done"
 RUN \

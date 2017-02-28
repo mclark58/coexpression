@@ -122,7 +122,7 @@ else
 endif
 	echo 'coverage run $(DIR)/$(TEST_DIR)/script_test/basic_test.py $$1 $$2 $$3' \
 		>> $(TEST_DIR)/script_test/run_tests.sh
-	chmod +x $(TEST_DIR)/script_test/run_tests.sh
+#	chmod +x $(TEST_DIR)/script_test/run_tests.sh
 
 
 compile:
