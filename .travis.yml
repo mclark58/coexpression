@@ -64,3 +64,4 @@ script:
 
 after_success:
     - coveralls
+    - echo "Completed"
