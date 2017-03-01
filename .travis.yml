@@ -46,7 +46,8 @@ install:
     - docker images
     - export PATH=$(pwd)/bin:$PATH
     - cd ../
-    - git clone https://github.com/sjyoo/coexpression
+    #IMPORTANT change clone to sjyoo and finally to kbase after pull requests
+    - git clone https://github.com/arfathpasha/coexpression
     - cd coexpression
     # run the kb-sdk test command once to build missing module files and dirs
     - kb-sdk test -s
@@ -63,4 +64,3 @@ script:
 
 after_success:
     - coveralls
-    - echo "Completed"
