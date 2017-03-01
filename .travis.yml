@@ -60,7 +60,7 @@ install:
 
 script:
     - kb-sdk test -s
-    - coverage report -m
 
 after_success:
+	- coverage report -m
     - coveralls
