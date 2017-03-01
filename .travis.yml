@@ -62,5 +62,5 @@ script:
     - kb-sdk test -s
 
 after_success:
-	- coverage report -m
+    - coverage report -m
     - coveralls
