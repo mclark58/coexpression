@@ -36,7 +36,7 @@ before_install:
     - java -version
 
 install:
-    - pip install python-coveralls
+    - pip install coveralls
     - pip install coverage
     - git clone https://github.com/kbase/jars
     - git clone https://github.com/kbase/kb_sdk
