@@ -62,6 +62,6 @@ script:
     - kb-sdk test -s
 
 after_success:
-	- pwd
+    - pwd
     - coverage report -m
     - coveralls
