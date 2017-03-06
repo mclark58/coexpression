@@ -103,8 +103,8 @@ test: test-impl create-test-wrapper
 
 test-impl: create-test-wrapper
 	./$(TEST_DIR)/script_test/run_tests.sh
-	pwd
 	coverage report -m
+	cp .coverage work/
 
 create-test-wrapper:
 	@echo "Creating test script wrapper"
