@@ -103,6 +103,7 @@ test: test-impl create-test-wrapper
 
 test-impl: create-test-wrapper
 	./$(TEST_DIR)/script_test/run_tests.sh
+	pwd
 	coverage report -m
 
 create-test-wrapper:
