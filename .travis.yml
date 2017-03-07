@@ -49,8 +49,8 @@ install:
     #IMPORTANT change clone to sjyoo and finally to kbase after pull requests
     - git clone https://github.com/arfathpasha/coexpression
     - cd coexpression
-    - echo 'test_local' >> .gitignore
-    - echo 'test_local' >> .dockerignore
+    # run the kb-sdk test command once to build test_local dir and populate the .ignore files
+    - kb-sdk test -s
     # add test config
     - sed -i "s/test_user=/test_user=$TEST_USER/" test_local/test.cfg
     - sed -i "s/test_password=/test_password=$TEST_PASSWORD/" test_local/test.cfg
