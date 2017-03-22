@@ -4,26 +4,49 @@
 import unittest
 import json
 import ConfigParser
+from os import environ
 
 from pprint import pprint
 
 from subprocess import call
 
+import sys
 from biokbase.auth import Token
+try:
+    from ConfigParser import ConfigParser  # py2
+except:
+    from configparser import ConfigParser  # py3
+from biokbase.CoExpression.authclient import KBaseAuth as _KBaseAuth
 
 # Before all the tests, read the config file and get a user token and
 # save it to a file used by the main service script
 class TestCoExpressionMethodsSetup(unittest.TestCase):
 
+    @classmethod
+    def setUp(cls):
 
-    def setUp(self):
-      config = ConfigParser.RawConfigParser()
-      config.read('ltest/test.cfg')
-      user_id = config.get('CoExpressionTest','user')
-      password = config.get('CoExpressionTest','password')
-      token = Token(user_id=user_id, password=password)
-      token_file = open('ltest/script_test/token.txt','w')
-      token_file.write(token.token)
+      token = environ.get('KB_AUTH_TOKEN', None)
+
+      if token is None:
+          sys.stderr.write("Error: Unable to run tests without authentication token!\n")
+          sys.exit(1)
+
+      token_file = open('ltest/script_test/token.txt', 'w')
+      token_file.write(token)
+
+      config_file = environ.get('KB_DEPLOYMENT_CONFIG', None)
+      cls.cfg = {}
+      config = ConfigParser()
+      config.read(config_file)
+      for nameval in config.items('CoExpression'):
+          cls.cfg[nameval[0]] = nameval[1]
+      auth_service_url = cls.cfg.get('auth-service-url',
+                                     "https://kbase.us/services/authorization/Sessions/Login")
+      ws_url = cls.cfg['ws_url']
+      auth_service_url_allow_insecure = cls.cfg['auth-service-url-allow-insecure']
+      auth_client = _KBaseAuth(auth_service_url)
+      user_id = auth_client.get_user(token)
+
 
   # Define all our other test cases here
 class TestCoExpressionMethods(TestCoExpressionMethodsSetup):
@@ -32,29 +55,29 @@ class TestCoExpressionMethods(TestCoExpressionMethodsSetup):
           print("\n\n----------- test diff_p_distribution  ----------")
 
           out =call(["run_CoExpression.sh",
-          "ltest/script_test/test_diff_p_distribution_input.json",
-          "ltest/script_test/test_diff_p_distribution_output.json",
+          "ltest/script_test/input_meta_data/test_diff_p_distribution_input.json",
+          "ltest/script_test/output_meta_data/test_diff_p_distribution_output.json",
           "ltest/script_test/token.txt"])
 
           # print error code of Implementation
           print(out);
 
-          with open('ltest/script_test/test_diff_p_distribution_output.json') as o:
+          with open('ltest/script_test/output_meta_data/test_diff_p_distribution_output.json') as o:
                   output =json.load(o)
           pprint(output)
-   '''
+
    def test_view_heatmap(self):
           print("\n\n----------- test view_heatmap  ----------")
 
           out =call(["run_CoExpression.sh",
-          "ltest/script_test/test_view_heatmap_input.json",
-          "ltest/script_test/test_view_heatmap_output.json",
+          "ltest/script_test/input_meta_data/test_view_heatmap_input.json",
+          "ltest/script_test/output_meta_data/test_view_heatmap_output.json",
           "ltest/script_test/token.txt"])
 
           # print error code of Implementation
           print(out);
 
-          with open('ltest/script_test/test_view_heatmap_output.json') as o:
+          with open('ltest/script_test/output_meta_data/test_view_heatmap_output.json') as o:
                   output =json.load(o)
           pprint(output)
 
@@ -62,14 +85,14 @@ class TestCoExpressionMethods(TestCoExpressionMethodsSetup):
           print("\n\n----------- test filter genes ----------")
 
           out =call(["run_CoExpression.sh",
-          "ltest/script_test/test_filter_genes_input.json",
-          "ltest/script_test/test_filter_genes_output.json",
+          "ltest/script_test/input_meta_data/test_filter_genes_input.json",
+          "ltest/script_test/output_meta_data/test_filter_genes_output.json",
           "ltest/script_test/token.txt"])
 
           # print error code of Implementation
           print(out);
 
-          with open('ltest/script_test/test_filter_genes_output.json') as o:
+          with open('ltest/script_test/output_meta_data/test_filter_genes_output.json') as o:
                   output =json.load(o)
           pprint(output)
 
@@ -77,17 +100,16 @@ class TestCoExpressionMethods(TestCoExpressionMethodsSetup):
           print("\n\n----------- test constcoex_net_clust ----------")
 
           out =call(["run_CoExpression.sh",
-          "ltest/script_test/test_coex_clust_input.json",
-          "ltest/script_test/test_coex_clust_output.json",
+          "ltest/script_test/input_meta_data/test_coex_clust_input.json",
+          "ltest/script_test/output_meta_data/test_coex_clust_output.json",
           "ltest/script_test/token.txt"])
 
           # print error code of Implementation
           print(out);
 
-          with open('ltest/script_test/test_coex_clust_output.json') as o:
+          with open('ltest/script_test/output_meta_data/test_coex_clust_output.json') as o:
                   output =json.load(o)
           pprint(output)
-  '''
 
 
 #start the tests if run as a script
