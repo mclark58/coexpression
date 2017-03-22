@@ -14,10 +14,8 @@ from biokbase.auth import Token
 # Before all the tests, read the config file and get a user token and
 # save it to a file used by the main service script
 class TestCoExpressionMethodsSetup(unittest.TestCase):
-    def test_dummy(self):
-        self.assertEquals(1,1)
 
-    '''
+
     def setUp(self):
       config = ConfigParser.RawConfigParser()
       config.read('ltest/test.cfg')
@@ -28,7 +26,7 @@ class TestCoExpressionMethodsSetup(unittest.TestCase):
       token_file.write(token.token)
 
   # Define all our other test cases here
-  class TestCoExpressionMethods(TestCoExpressionMethodsSetup):
+class TestCoExpressionMethods(TestCoExpressionMethodsSetup):
 
    def test_diff_p_distribution(self):
           print("\n\n----------- test diff_p_distribution  ----------")
@@ -44,7 +42,7 @@ class TestCoExpressionMethodsSetup(unittest.TestCase):
           with open('ltest/script_test/test_diff_p_distribution_output.json') as o:
                   output =json.load(o)
           pprint(output)
-
+   '''
    def test_view_heatmap(self):
           print("\n\n----------- test view_heatmap  ----------")
 
