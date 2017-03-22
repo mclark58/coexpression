@@ -1,6 +1,7 @@
 # Test script for genome_util package - it should be launched from
 # the root of the genome_util module, ideally just with 'make test', as
 # it looks for a hardcoded relative path to find the 'test.cfg' file
+import glob
 import unittest
 import json
 import ConfigParser
@@ -17,6 +18,10 @@ try:
 except:
     from configparser import ConfigParser  # py3
 from biokbase.CoExpression.authclient import KBaseAuth as _KBaseAuth
+from biokbase.workspace.client import Workspace as Workspace
+
+INPUT_META_DATA_DIR = 'ltest/script_test/input_meta_data'
+INPUT_DATA_DIR = 'ltest/script_test/input_data'
 
 # Before all the tests, read the config file and get a user token and
 # save it to a file used by the main service script
@@ -46,6 +51,45 @@ class TestCoExpressionMethodsSetup(unittest.TestCase):
       auth_service_url_allow_insecure = cls.cfg['auth-service-url-allow-insecure']
       auth_client = _KBaseAuth(auth_service_url)
       user_id = auth_client.get_user(token)
+
+      ws = Workspace(url=ws_url, token=token, auth_svc=auth_service_url,
+                             trust_all_ssl_certificates=auth_service_url_allow_insecure)
+
+      for filename in glob.iglob(INPUT_META_DATA_DIR+ '/*.json'):
+          with open(filename, 'r') as infile:
+            input_meta_data = json.load(infile)
+
+          print('reading input file: '+filename)
+          print('object_name: '+str(input_meta_data['params'][0]['object_name']))
+
+          input_data_filename = INPUT_DATA_DIR + '/' + str(input_meta_data['params'][0]['object_name']) + '.json'
+          print('input data filename: ' + input_data_filename)
+
+          with open(input_data_filename, 'r') as infile:
+            input_data = json.load(infile)
+          print('type: '+input_data[0]['info'][2])
+
+          # create workspace that is local to the user if it does not exist
+
+          workspace_name = str(input_meta_data['params'][0]['workspace_name'])+user_id
+          print('workspace_name: ' + workspace_name)
+
+          try:
+              ws_info = ws.get_workspace_info({'workspace': workspace_name})
+              print("workspace already exists: " + str(ws_info))
+          except:
+          #if workspace_name not in str(ws.list_workspace_info({})):
+             ws_info = ws.create_workspace(
+                  {'workspace': workspace_name, 'description': 'Workspace for '+str(input_meta_data['method'])})
+             print("Created new workspace: "+str(ws_info))
+
+          #upload data (no effect if data already exists in workspace)
+          print('uploading input data to workspace')
+          ws.save_objects(
+                  {'workspace': workspace_name, 'objects': [{'type': input_data[0]['info'][2],
+                                                                  'data': input_data[0]['data'],
+                                                                  'name': input_meta_data['params'][0]['object_name']}]})
+      print('ws objects: ' + str(ws.list_objects({'workspaces': [workspace_name]})))
 
 
   # Define all our other test cases here

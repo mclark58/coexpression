@@ -4,7 +4,7 @@
     "context": null,
     "params":[     
             {
-              "workspace_name": "plane83:1455659812761",
+              "workspace_name": "CoExpression_test_",
               "object_name": "GSE71046_maizeRNAseq_top1500",
               "net_method": "WGCNA",
               "clust_method": "WGCNA",
