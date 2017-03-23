@@ -14,6 +14,7 @@ from ConfigParser import ConfigParser
 import re
 from collections import OrderedDict
 import uuid
+from string import Template
 
 # 3rd party imports
 import requests
@@ -202,7 +203,9 @@ class CoExpression:
 
         auth_client = _KBaseAuth(self.__AUTH_SERVICE_URL)
         user_id = auth_client.get_user(token)
-        full_workspace_name = param['workspace_name']+user_id
+        workspace_name_t = Template(param['workspace_name'])
+        full_workspace_name = workspace_name_t.substitute(user_id=user_id)
+        #full_workspace_name = param['workspace_name']+user_id
  
  
         from biokbase.workspace.client import Workspace
@@ -311,7 +314,9 @@ class CoExpression:
 
         auth_client = _KBaseAuth(self.__AUTH_SERVICE_URL)
         user_id = auth_client.get_user(token)
-        full_workspace_name = param['workspace_name']+user_id
+        workspace_name_t = Template(param['workspace_name'])
+        full_workspace_name = workspace_name_t.substitute(user_id=user_id)
+        #full_workspace_name = param['workspace_name']+user_id
  
         provenance = [{}]
         if 'provenance' in ctx:
@@ -478,7 +483,9 @@ class CoExpression:
 
         auth_client = _KBaseAuth(self.__AUTH_SERVICE_URL)
         user_id = auth_client.get_user(token)
-        full_workspace_name = param['workspace_name'] + user_id
+        workspace_name_t = Template(param['workspace_name'])
+        full_workspace_name = workspace_name_t.substitute(user_id=user_id)
+        #full_workspace_name = param['workspace_name'] + user_id
 
         provenance = [{}]
         if 'provenance' in ctx:
@@ -645,7 +652,9 @@ class CoExpression:
 
         auth_client = _KBaseAuth(self.__AUTH_SERVICE_URL)
         user_id = auth_client.get_user(token)
-        full_workspace_name = param['workspace_name']+user_id
+        workspace_name_t = Template(param['workspace_name'])
+        full_workspace_name = workspace_name_t.substitute(user_id=user_id)
+        #full_workspace_name = param['workspace_name']+user_id
  
  
         from biokbase.workspace.client import Workspace

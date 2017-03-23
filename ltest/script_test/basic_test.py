@@ -6,7 +6,7 @@ import unittest
 import json
 import ConfigParser
 from os import environ
-
+from string import Template
 from pprint import pprint
 
 from subprocess import call
@@ -82,7 +82,9 @@ class TestCoExpressionMethodsSetup(unittest.TestCase):
 
           # create workspace that is local to the user if it does not exist
 
-          workspace_name = str(input_meta_data['params'][0]['workspace_name'])+user_id
+          workspace_name_t = Template(str(input_meta_data['params'][0]['workspace_name']))
+          workspace_name = workspace_name_t.substitute(user_id=user_id)
+          #workspace_name = str(input_meta_data['params'][0]['workspace_name'])+user_id
           print('workspace_name: ' + workspace_name)
 
           try:
