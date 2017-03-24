@@ -84,7 +84,6 @@ class TestCoExpressionMethodsSetup(unittest.TestCase):
 
           workspace_name_t = Template(str(input_meta_data['params'][0]['workspace_name']))
           workspace_name = workspace_name_t.substitute(user_id=user_id)
-          #workspace_name = str(input_meta_data['params'][0]['workspace_name'])+user_id
           print('workspace_name: ' + workspace_name)
 
           try:
