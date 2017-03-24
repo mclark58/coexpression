@@ -66,6 +66,8 @@ script:
     - kb-sdk test
 
 after_success:
+    - pwd
+    - ls -l
     - cp test_local/workdir/.coverage .
     - coverage report -m
     - coveralls
