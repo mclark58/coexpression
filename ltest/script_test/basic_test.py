@@ -1,7 +1,6 @@
 # Test script for genome_util package - it should be launched from
 # the root of the genome_util module, ideally just with 'make test', as
 # it looks for a hardcoded relative path to find the 'test.cfg' file
-import glob
 import unittest
 import json
 import ConfigParser
@@ -66,22 +65,20 @@ class TestCoExpressionMethodsSetup(unittest.TestCase):
       ws = Workspace(url=ws_url, token=token, auth_svc=auth_service_url,
                              trust_all_ssl_certificates=auth_service_url_allow_insecure)
 
-      for filename in glob.iglob(INPUT_META_DATA_DIR+ '/*.json'):
+      # update input data in reverse order of references
+      ordered_file_list = [INPUT_META_DATA_DIR+'/test_diff_p_distribution_input_ref2.json',
+                      INPUT_META_DATA_DIR+'/test_diff_p_distribution_input_ref1.json',
+                      INPUT_META_DATA_DIR+'/test_diff_p_distribution_input.json',
+                      INPUT_META_DATA_DIR+'/test_view_heatmap_input_ref1.json',
+                      INPUT_META_DATA_DIR+'/test_view_heatmap_input.json',
+                      INPUT_META_DATA_DIR+'/test_coex_clust_input.json',
+                      INPUT_META_DATA_DIR+'/test_filter_genes_input.json']
+
+      for filename in ordered_file_list:
           with open(filename, 'r') as infile:
             input_meta_data = json.load(infile)
 
-          print('reading input file: '+filename)
-          print('object_name: '+str(input_meta_data['params'][0]['object_name']))
-
-          input_data_filename = INPUT_DATA_DIR + '/' + str(input_meta_data['params'][0]['object_name']) + '.json'
-          print('input data filename: ' + input_data_filename)
-
-          with open(input_data_filename, 'r') as infile:
-            input_data = json.load(infile)
-          print('type: '+input_data[0]['info'][2])
-
           # create workspace that is local to the user if it does not exist
-
           workspace_name_t = Template(str(input_meta_data['params'][0]['workspace_name']))
           workspace_name = workspace_name_t.substitute(user_id=user_id)
           print('workspace_name: ' + workspace_name)
@@ -90,10 +87,27 @@ class TestCoExpressionMethodsSetup(unittest.TestCase):
               ws_info = ws.get_workspace_info({'workspace': workspace_name})
               print("workspace already exists: " + str(ws_info))
           except:
-          #if workspace_name not in str(ws.list_workspace_info({})):
-             ws_info = ws.create_workspace(
-                  {'workspace': workspace_name, 'description': 'Workspace for '+str(input_meta_data['method'])})
-             print("Created new workspace: "+str(ws_info))
+              ws_info = ws.create_workspace(
+                {'workspace': workspace_name, 'description': 'Workspace for ' + str(input_meta_data['method'])})
+              print("Created new workspace: " + str(ws_info))
+
+          print('reading input file: '+filename)
+          object_name = str(input_meta_data['params'][0]['object_name'])
+          print('object_name: '+object_name)
+
+          input_data_filename = INPUT_DATA_DIR + '/' + object_name + '.json'
+          print('input data filename: ' + input_data_filename)
+
+          with open(input_data_filename, 'r') as infile:
+            input_data = json.load(infile)
+
+          # update workspace name in input data
+          input_data_str = json.dumps(input_data)
+          input_data_t = Template(input_data_str)
+          input_data_str = input_data_t.substitute(workspace_name=workspace_name)
+          input_data = json.loads(input_data_str)
+
+          print('type: '+input_data[0]['info'][2])
 
           #upload data (no effect if data already exists in workspace)
           print('uploading input data to workspace')
@@ -111,13 +125,13 @@ class TestCoExpressionMethods(TestCoExpressionMethodsSetup):
 
           out =call(["run_CoExpression.sh",
           "ltest/script_test/input_meta_data/test_diff_p_distribution_input.json",
-          "ltest/script_test/output_meta_data/test_diff_p_distribution_output.json",
+          "ltest/script_test/test_diff_p_distribution_output.json",
           "ltest/script_test/token.txt"])
 
           # print error code of Implementation
           print(out);
 
-          with open('ltest/script_test/output_meta_data/test_diff_p_distribution_output.json') as o:
+          with open('ltest/script_test/test_diff_p_distribution_output.json') as o:
                   output =json.load(o)
           pprint(output)
 
@@ -126,13 +140,13 @@ class TestCoExpressionMethods(TestCoExpressionMethodsSetup):
 
           out =call(["run_CoExpression.sh",
           "ltest/script_test/input_meta_data/test_view_heatmap_input.json",
-          "ltest/script_test/output_meta_data/test_view_heatmap_output.json",
+          "ltest/script_test/test_view_heatmap_output.json",
           "ltest/script_test/token.txt"])
 
           # print error code of Implementation
           print(out);
 
-          with open('ltest/script_test/output_meta_data/test_view_heatmap_output.json') as o:
+          with open('ltest/script_test/test_view_heatmap_output.json') as o:
                   output =json.load(o)
           pprint(output)
 
@@ -141,14 +155,14 @@ class TestCoExpressionMethods(TestCoExpressionMethodsSetup):
 
           out =call(["run_CoExpression.sh",
           "ltest/script_test/input_meta_data/test_filter_genes_input.json",
-          "ltest/script_test/output_meta_data/test_filter_genes_output.json",
+          "ltest/script_test/test_filter_genes_output.json",
           "ltest/script_test/token.txt"])
 
           # print error code of Implementation
           print(out);
 
 
-          with open('ltest/script_test/output_meta_data/test_filter_genes_output.json') as o:
+          with open('ltest/script_test/test_filter_genes_output.json') as o:
                   output =json.load(o)
           pprint(output)
 
@@ -157,17 +171,16 @@ class TestCoExpressionMethods(TestCoExpressionMethodsSetup):
 
           out =call(["run_CoExpression.sh",
           "ltest/script_test/input_meta_data/test_coex_clust_input.json",
-          "ltest/script_test/output_meta_data/test_coex_clust_output.json",
+          "ltest/script_test/test_coex_clust_output.json",
           "ltest/script_test/token.txt"])
 
           # print error code of Implementation
           print(out);
 
 
-          with open('ltest/script_test/output_meta_data/test_coex_clust_output.json') as o:
+          with open('ltest/script_test/test_coex_clust_output.json') as o:
                   output =json.load(o)
           pprint(output)
-
 
 #start the tests if run as a script
 if __name__ == '__main__':
