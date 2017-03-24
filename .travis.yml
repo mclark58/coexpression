@@ -49,7 +49,7 @@ install:
     - export PATH=$(pwd)/bin:$PATH
     - cd ../
     #IMPORTANT change clone to sjyoo and finally to kbase after pull requests
-    #- git clone https://github.com/arfathpasha/coexpression -b develop
+    - git clone https://github.com/arfathpasha/coexpression -b develop
     - cd coexpression
     # run the kb-sdk test command once to build test_local dir and populate the .ignore files
     - kb-sdk test -s

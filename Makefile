@@ -106,8 +106,7 @@ test-impl: create-test-wrapper
 	coverage report -m
 	cp .coverage work/
 	mkdir -p work/kb
-	mkdir -p work/kb/deployment
-	cp -R /kb/deployment work/kb/deployment
+	cp -R /kb/deployment work/kb/
 
 create-test-wrapper:
 	@echo "Creating test script wrapper"
