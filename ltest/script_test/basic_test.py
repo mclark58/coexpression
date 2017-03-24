@@ -114,7 +114,7 @@ class TestCoExpressionMethodsSetup(unittest.TestCase):
           ws.save_objects(
                   {'workspace': workspace_name, 'objects': [{'type': input_data[0]['info'][2],
                                                                   'data': input_data[0]['data'],
-                                                                  'name': input_meta_data['params'][0]['object_name']}]})
+                                                                  'name': object_name}]})
       print('ws objects: ' + str(ws.list_objects({'workspaces': [workspace_name]})))
 
   # Define all our other test cases here

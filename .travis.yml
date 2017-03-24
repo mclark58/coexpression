@@ -67,7 +67,8 @@ script:
 
 after_success:
     - pwd
-    - ls -l
+    - ls -la test_local/
+    - ls -la test_local/workdir/
     - cp test_local/workdir/.coverage .
     - coverage report -m
     - coveralls
