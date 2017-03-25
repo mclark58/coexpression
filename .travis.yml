@@ -67,8 +67,7 @@ script:
 
 after_success:
     - cp test_local/workdir/.coverage .
-    - sudo mkdir -p /kb
     - sudo mkdir -p /kb/lib
-    - sudo cp -R test_local/workdir/kb/lib/deployment /kb/lib
+    - sudo cp -R test_local/workdir/kb/deployment/lib /kb/deployment
     - coverage report -m
     - coveralls
