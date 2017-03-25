@@ -67,7 +67,7 @@ script:
 
 after_success:
     - cp test_local/workdir/.coverage .
-    - sudo mkdir -p /kb/lib
+    - sudo mkdir -p /kb/deployment
     - sudo cp -R test_local/workdir/kb/deployment/lib /kb/deployment
     - ls -l /kb/deployment/lib/biokbase/
     - coverage report -m
