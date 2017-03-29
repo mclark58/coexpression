@@ -3,8 +3,8 @@
   "ver" : "1.0.0",
   "authors" : [ ],
   "contact" : "help@kbase.us",
-  "visble" : true,
-  "categories" : ["active"],
+  "visible" : true,
+  "categories" : ["active","expression"],
   "widgets" : {
     "input" : null,
     "output" : "kbaseExpressionMatrix"
@@ -24,7 +24,7 @@
       "optional" : true,
       "advanced" : false,
       "allow_multiple" : false,
-      "default_values" : [ "lor" ],
+      "default_values" : [ "anova" ],
       "field_type" : "dropdown",
       "dropdown_options":{
         "options": [
