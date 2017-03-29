@@ -7,13 +7,17 @@ RUN \
   rm -rf jars && \
   git clone https://github.com/kbase/jars && \
   rm -rf kb_sdk && \
-  git clone https://github.com/kbase/kb_sdk -b develop && \
+  git clone https://github.com/kbase/kb_sdk -b auth2 && \
   rm -rf transform && \
   git clone https://github.com/kbase/transform && \
+  rm -rf workspace_deluxe && \
+  git clone https://github.com/kbase/workspace_deluxe && \
   cd /kb/dev_container/modules/jars && \
   make deploy && \
   cd /kb/dev_container/modules/kb_sdk && \
-  make && make deploy 
+  make && make deploy && \
+  cd /kb/dev_container/modules/workspace_deluxe && \
+  cp -rv lib/* /kb/deployment/lib/
 
 RUN \
   . /kb/dev_container/user-env.sh && \
@@ -43,9 +47,12 @@ RUN \
 		     unzip 
 RUN pip install mpipe
 RUN pip install pandas numpy
+RUN pip install coverage
 WORKDIR /kb/module
 COPY ./deps /kb/deps
 COPY ./ /kb/module
+RUN chmod -R a+rw /kb/module
+RUN chmod +x /kb/module/ltest/script_test/run_tests.sh
 # Windows compatibility line
 #RUN bash -c "for i in `find . -name '*.sh'`; do dos2unix -v $i; done"
 RUN \
