@@ -602,9 +602,9 @@ class CoExpression:
                                         ]
                                         })[0]
 
-        #result = { "report_name" : reportName,"report_ref" : "{0}/{1}/{2}".format(report_info[6],report_info[0],report_info[4]) }
+        result = { "report_name" : reportName,"report_ref" : "{0}/{1}/{2}".format(report_info[6],report_info[0],report_info[4]) }
         #result = {'workspace_name' : workspace_name, 'out_object_name' : param['out_object_name']}
-        result = {'workspace' : workspace_name, 'output' : param['out_object_name']}
+        #result = {'workspace' : workspace_name, 'output' : param['out_object_name']}
         #END const_coex_net_clust
 
         # At some point might do deeper type checking...
