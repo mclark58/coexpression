@@ -62,6 +62,18 @@ class TestCoExpressionMethodsSetup(unittest.TestCase):
       auth_client = _KBaseAuth(auth_service_url)
       user_id = auth_client.get_user(token)
 
+
+      #update references in input data
+      with open('ltest/script_test/input_data/E_coli_v4_Build_6_impute_1.json') as infile:
+          data_obj = json.load(infile)
+      genome_ref = data_obj[0]['data']['genome_ref']
+      genome_ref_t = Template(genome_ref)
+      genome_ref = genome_ref_t.substitute(user_id=user_id)
+      data_obj[0]['data']['genome_ref'] = genome_ref
+      with open('ltest/script_test/input_data/E_coli_v4_Build_6_impute_1.json', 'w') as outfile:
+          json.dump(data_obj, outfile)
+
+
       ws = Workspace(url=ws_url, token=token, auth_svc=auth_service_url,
                              trust_all_ssl_certificates=auth_service_url_allow_insecure)
 
