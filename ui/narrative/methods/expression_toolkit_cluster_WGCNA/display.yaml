@@ -8,7 +8,7 @@ tooltip  : |
 
 screenshots :
     []
-    
+
 icon: wgcna-yellow.png
 
 #
@@ -29,7 +29,7 @@ parameters :
         ui-name : |
             Expression Matrix
         short-hint : |
-            Input Expression Matrix 
+            Input Expression Matrix
         long-hint  : |
             Choose an Expression Matrix from your Data Panel to use with this method. You can upload an Expression Matrix into your Narrative by clicking the <i>Add Data</i> button and selecting the <i>Import</i> tab.
 
@@ -77,3 +77,9 @@ description : |
     Shinjae Yoo, Fei He, Sunita Kumari, Priya Ranjan, Srividya Ramakrishnan, Jim Thomason, Vivek Kumar</p>
 
     <p>For questions, <a href="mailto:help@kbase.us">e-mail help@kbase.us</a></p>
+
+publications :
+    -
+        display-text: |
+            Langfelder P, Horvath S. WGCNA: an R package for weighted correlation network analysis. BMC Bioinformatics. 2008;9: 559. doi:10.1186/1471-2105-9-559
+        link: https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-9-559

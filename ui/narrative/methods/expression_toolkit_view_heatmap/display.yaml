@@ -36,7 +36,7 @@ parameters :
             Select the clustering output to be visualized
     min_features :
         ui-name : |
-            Minimum Number of Features 
+            Minimum Number of Features
         short-hint : |
             Minimum number of features to be displayed in the heatmap. It must not be greater than the number of features associated with the expression matrix. The heatmap may display additional features to ensure that all the selected clusters are shown in full.
     figure_object :
@@ -81,10 +81,15 @@ parameters :
 description : |
     <p> This method displays multi-cluster heatmap of expressed genes. The user can modulate the output of the heatmap by varying the minimum number of features required while making sure that all the related clusters are shown in full in the heatmap. The heatmap shows original expression values by default.</p>
 
-    <p> The advanced options allow the user to enable the display log2 fold change values in the heatmap. In the later case, the user can further select the quantile level of the standard deviation of log2 fold change, quantile weight, fold normalization option and the fold normalization range so that the selected clusters are most coherent with respect to features and most diverse with respect to conditions.</p> 
+    <p> The advanced options allow the user to enable the display log2 fold change values in the heatmap. In the later case, the user can further select the quantile level of the standard deviation of log2 fold change, quantile weight, fold normalization option and the fold normalization range so that the selected clusters are most coherent with respect to features and most diverse with respect to conditions.</p>
 
     <p><strong>Team members who developed & deployed algorithm in KBase:</strong>
     Shinjae Yoo, Fei He, Sunita Kumari, Priya Ranjan, Srividya Ramakrishnan, Jim Thomason, Vivek Kumar</p>
-     
+
     <p>For questions, <a href="mailto:help@kbase.us">e-mail help@kbase.us</a></p>
 
+publications :
+    -
+        display-text: |
+            Arkin AP, Cottingham RW, Henry CS, Harris NL, Stevens RL, Maslov S, et al. KBase: The United States Department of Energy Systems Biology Knowledgebase. Nature Biotechnology. 2018;36: 566. doi: 10.1038/nbt.4163
+        link: https://www.nature.com/articles/nbt.4163
