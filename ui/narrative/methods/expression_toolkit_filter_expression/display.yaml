@@ -3,7 +3,7 @@
 #
 name     : Filter Expression Matrix
 tooltip  : |
-    Filter an expression matrix using either Log Odds Ratio (LOR) or ANalysis of VAriance (ANOVA) algorithms.
+    Filter an ExpressionMatrix object using either Log Odds Ratio (LOR) or ANalysis of VAriance (ANOVA) algorithms.
 
 screenshots :
     []
@@ -33,19 +33,17 @@ parameters :
         ui-name : |
             Expression Matrix
         short-hint : |
-            Select the Expression Matrix
-        long-hint  : |
-            Choose an Expression Matrix from your Data Panel to use with this method. You can upload an Expression Matrix into your Narrative by clicking the <i>Add Data</i> button and selecting the <i>Import</i> tab. Please run the method Associate Expression Matrix to Genome Features before running this method.
+            Choose an ExpressionMatrix from your Data Panel to use with this method. You can upload an ExpressionMatrix into your Narrative by clicking the <i>Add Data</i> button and selecting the <i>Import</i> tab.
     filtered_expression:
         ui-name : |
             Filtered Expression Matrix
         short-hint : |
-            Output filtered expression matrix
+            The output filtered ExpressionMatrix.
     filtered_featureset :
         ui-name : |
             Filtered FeatureSet
         short-hint : |
-            Output filtered FeatureSet
+            The output filtered FeatureSet.
     method :
         ui-name : |
             Filter Option
@@ -55,25 +53,23 @@ parameters :
         ui-name : |
             Number of Features
         short-hint : |
-            Number of features you want to retain in the filtered expression matrix
+            Number of features to retain in the filtered ExpressionMatrix.
     p_value :
         ui-name : |
             P-value Cutoff
         short-hint : |
-            P-value cutoff to select differentially expressed genes in the filtered expression matrix
+            P-value cutoff to  filter expressed genes in the filtered ExpressionMatrix.
 description : |
-    <p>This method filters differentially expressed genes from the Expression Matrix and generates a FeatureSet and filtered Expression Matrix. Begin by selecting or importing both the Expression Matrix and the Genome associated with the Expression Matrix using the Add Data button. If the Expression Matrix was not associated with a Genome when it was imported, please run the method <i>Associate Expression Matrix to Genome Features</i> on the Expression Matrix before running this method. Select either of the filter options that use the Number of Features, or a P-value cutoff to filter differentially expressed genes. If both the Number of Features and the P-value cutoff are populated, the method will default to using the Number of Features with the selected filtering method. Provide names for the output filtered Expression Matrix and FeatureSet and then run the method.</p>
+    <p>This App filters expressed genes from an ExpressionMatrix and generates a FeatureSet and filtered ExpressionMatrix. Begin by selecting or importing an ExpressionMatrix using the <i>Add Data<i> button. Select either of the filter options that use the number of features, or a P-value cutoff to filter differentially expressed genes. If both the number of features and the P-value cutoff are populated, the App will default to using the number of features as the selected filtering method.</p>
 
-    <p>Description of filtering methods to do differential Expression:
-        <ul>
+    <p>Description of filtering methods to do differential expression:
+      <ul>
         <li>Log odds ratio is a statistical test that calculates the logarithm of the ratio of the odds for regulation to the odds against regulation to measure association between the variables.</li>
         <li>ANOVA (ANalysis Of VAriance) is a statistical test for measurement of heterogeneity of means by analysis of group variances.</li>
-    </ul></p>
+      </ul>
+    </p>
 
-    <p><strong>Team members who developed & deployed algorithm in KBase:</strong>
-    Shinjae Yoo, Paramvir Dehal, Roman Sutormin, Michael Sneddon, Srividya Ramakrishnan, Pavel Novichkov, Keith Keller, Sunita Kumari, Priya Ranjan, Fei He, Jim Thomason, Vivek Kumar.</p>
-
-    <p>For questions, <a href="mailto:help@kbase.us">e-mail help@kbase.us</a></p>
+    <p><strong>Team members who developed & deployed algorithm in KBase:</strong> Shinjae Yoo, Paramvir Dehal, Roman Sutormin, Michael Sneddon, Srividya Ramakrishnan, Pavel Novichkov, Keith Keller, Sunita Kumari, Priya Ranjan, Fei He, Jim Thomason, and Vivek Kumar. For questions, please <a href="http://kbase.us/contact-us/">contact us</a>.</p>
 
 publications :
     -
