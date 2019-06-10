@@ -79,7 +79,7 @@ description : |
       <ul>
         <li><a href=”https://narrative.kbase.us/#catalog/apps/KBaseFeatureValues/expression_toolkit_cluster_hierarchical/release”>Cluster Expression Data - Hierarchical</a></li>
         <li><a href=”https://narrative.kbase.us/#catalog/apps/CoExpression/expression_toolkit_cluster_WGCNA/release”>Cluster Expression Data - WGCNA</a></li>
-        <li><a href=”https://narrative.kbase.us/#catalog/apps/KBaseFeatureValues/expression_toolkit_cluster_k_means/release”></a>Cluster Expression Data - K-Means</li>
+        <li><a href=”https://narrative.kbase.us/#catalog/apps/KBaseFeatureValues/expression_toolkit_cluster_k_means/release”>Cluster Expression Data - K-Means</a></li>
       </ul>
     </p>
 

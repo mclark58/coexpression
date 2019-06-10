@@ -60,7 +60,7 @@ parameters :
         short-hint : |
             P-value cutoff to  filter expressed genes in the filtered ExpressionMatrix.
 description : |
-    <p>This App filters expressed genes from an ExpressionMatrix and generates a FeatureSet and filtered ExpressionMatrix. Begin by selecting or importing an ExpressionMatrix using the <i>Add Data<i> button. Select either of the filter options that use the number of features, or a P-value cutoff to filter differentially expressed genes. If both the number of features and the P-value cutoff are populated, the App will default to using the number of features as the selected filtering method.</p>
+    <p>This App filters expressed genes from an ExpressionMatrix and generates a FeatureSet and filtered ExpressionMatrix. Begin by selecting or importing an ExpressionMatrix using the <i>Add Data</i> button. Select either of the filter options that use the number of features, or a P-value cutoff to filter differentially expressed genes. If both the number of features and the P-value cutoff are populated, the App will default to using the number of features as the selected filtering method.</p>
 
     <p>Description of filtering methods to do differential expression:
       <ul>
